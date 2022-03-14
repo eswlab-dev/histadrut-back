@@ -1,13 +1,14 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import mondayRoutes from './monday';
-
+import mondayRoutes from "./monday";
+import boardRestrictionsRoutes from "./boardRestrictions";
 router.use(mondayRoutes);
-router.get('/', function(req, res) {
+router.use("/restriction", boardRestrictionsRoutes);
+router.get("/", function (req, res) {
   res.json(getHealth());
 });
 
-router.get('/health', function(req, res) {
+router.get("/health", function (req, res) {
   res.json(getHealth());
   res.end();
 });
@@ -15,7 +16,7 @@ router.get('/health', function(req, res) {
 function getHealth() {
   return {
     ok: true,
-    message: 'Healthy'
+    message: "Healthy",
   };
 }
 

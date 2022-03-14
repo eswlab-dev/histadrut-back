@@ -1,36 +1,44 @@
 import { BoardRestriction } from "../DB/models";
 import * as Types from "../constants/types";
-import mongoose from "mongoose";
+import { Request, Response } from "express";
 /**
  * gets all Restrictions by account
  */
 export async function getBoardsRestrictionsByAccount(
-  accountId: Types.Id
-): Promise<Types.BoardRestrictions> {
-  return await BoardRestriction.find({ accountId });
+  req: Request,
+  res: Response
+) {
+  const restrictions = await BoardRestriction.find({
+    accountId: req.params.accountId,
+  });
+  res.send(restrictions);
 }
 /**
  * gets all Restrictions by account
  */
-export async function getBoardRestrictions(
-  boardId: Types.Id
-): Promise<Types.BoardRestrictions> {
-  return await BoardRestriction.find({ boardId });
+export async function getBoardRestrictions(req: Request, res: Response) {
+  const restrictions = await BoardRestriction.find({
+    boardId: req.params.boardId,
+  });
+  res.send(restrictions);
 }
-export async function AddBoardRestriction(
-  restriction: Types.BoardRestrictions
-): Promise<Types.BoardRestrictions> {
+export async function AddBoardRestriction(req: Request, res: Response) {
+  const { restriction }: { restriction: Types.BoardRestrictions } = req.body;
   const newRestriction = new BoardRestriction(restriction);
   await newRestriction.save();
-  return newRestriction;
+  res.send(newRestriction);
 }
-export async function updateBoardRestriction(
-  restriction: Types.BoardRestrictions
-): Promise<Types.BoardRestrictions> {
+export async function updateBoardRestriction(req: Request, res: Response) {
+  const { restriction }: { restriction: Types.BoardRestrictions } = req.body;
   const newRestriction = await BoardRestriction.findByIdAndUpdate(
-    restriction.id,
+    restriction._id,
     restriction,
     { new: true }
   );
-  return newRestriction;
+  res.send(newRestriction);
+}
+export async function deleteBoardRestriction(req: Request, res: Response) {
+  const { _id } = req.params;
+  const deletedRestriction = await BoardRestriction.findByIdAndDelete(_id);
+  res.send(deletedRestriction);
 }
