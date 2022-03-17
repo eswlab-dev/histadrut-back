@@ -17,13 +17,14 @@ const corsOptions = {
     "https://api.monday.com/v2/file",
     "https://esl-monday-for-outlook-portal.herokuapp.com",
     "https://esl-subscription-services.herokuapp.com",
+    "https://a74851e61fef69a2.cdn2.monday.app",
   ],
   methods: ["GET", "PUT", "POST", "HEAD", "DELETE", "OPTIONS"],
   preflightContinue: false,
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(routes);
 app.listen(port, () =>
   console.log(`App listening at http://localhost:${port}`)
