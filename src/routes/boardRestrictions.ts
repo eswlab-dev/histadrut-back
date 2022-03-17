@@ -11,5 +11,5 @@ router.get(
 );
 router.post("/board", restrictionController.AddBoardRestriction);
 router.put("/board", restrictionController.updateBoardRestriction);
-router.delete("/board/:_id");
+router.delete("/board/:_id", restrictionController.deleteBoardRestriction);
 export default router;

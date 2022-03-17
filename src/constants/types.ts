@@ -6,7 +6,7 @@ export interface ColumnValue {
   id: Id;
   type: string;
   title: string;
-  value: JSON;
+  value: string | JSON;
 }
 export interface Item {
   id: Id;

@@ -23,6 +23,7 @@ async function getItemColumns(token: string, itemId: Types.Id) {
       }`;
     const response = await monday.api(query);
     const item: Types.Item = response.data.items[0];
+    item.columnValues = response.data.items[0].column_values;
     return item;
   } catch (err) {
     console.log(err);
@@ -35,18 +36,29 @@ async function checkItemColumnValues(
   item: Types.Item,
   dbColumns: Types.DbColumns
 ): Promise<boolean> {
-  return false;
+  const checkedColumns = item.columnValues.filter((column) =>
+    dbColumns.includes(column.id)
+  );
+  const isValid = checkedColumns?.every((col) => {
+    const { value, id } = col;
+    return dbColumns.includes(id) && !!value;
+  });
+  console.log(`isValid`, isValid);
+  return isValid;
 }
 async function returnToPreviousGroup(
   itemId: Types.Id,
   previousGroupId: Types.Id
 ) {
   const mutation = `mutation{
-    move_item_to_group(itemId:${itemId}, groupId:${previousGroupId}){
+    move_item_to_group(item_id:${itemId}, group_id:${JSON.stringify(
+    previousGroupId
+  )}){
       id
     }
   }`;
-  await monday.api(mutation);
+  const res = await monday.api(mutation);
+  console.log(`returnToPreviousGroup -> res`, res);
 }
 async function notify(
   userId: Types.Id,
@@ -57,15 +69,22 @@ async function notify(
     missingColumns: getColumnNames(dbColumns, item),
     item: item.name,
   };
-  const message = `The item ${
+  console.log(`names`, names);
+
+  const message = `The item <b>${
     names.item
-  } was returned to the group its previous group because it wasn't filled correctly. missing columns: ${names.missingColumns!.join(
+  }</b> was returned to it's previous group because it wasn't filled correctly. Missing columns:<b> ${names.missingColumns?.join(
     ", "
-  )} `;
+  )}</b>`;
   const mutation = `mutation{
-    create_notification (user_id:${userId}, target_id:${item.id}, text:${message})
+    create_notification (user_id:${userId}, target_id:${
+    item.id
+  }, text:${JSON.stringify(message)}, target_type: Project){
+    text
+  }
   }`;
-  await monday.api(mutation);
+  const res = await monday.api(mutation);
+  console.log(`notify->res`, res);
 }
 function getColumnNames(
   dbColumns: Types.DbColumns,
@@ -73,9 +92,11 @@ function getColumnNames(
 ): string[] | undefined {
   if (dbColumns) {
     const columns = dbColumns?.map((column) => {
-      item.columnValues.find((value) => value.id === column);
+      if (column === "name") return { title: "Name" };
+      const col = item.columnValues?.find((value) => column === value.id);
+      return col;
     });
-    return columns?.map((col: any) => col.title);
+    return columns?.map((col: any) => col?.title);
   }
 }
 export default {
