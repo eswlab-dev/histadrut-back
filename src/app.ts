@@ -12,13 +12,12 @@ const port = process.env.PORT;
 app.use(bodyParser.json());
 const corsOptions = {
   origin: [
-    "https://9d27-2a0e-9cc0-23f4-d00-d824-6183-c845-2759.ngrok.io",
+    "https://f089-2a0e-9cc0-23f4-d00-fce6-3347-eae8-4c60.ngrok.io",
     "https://api.monday.com/v2",
     "https://api.monday.com/v2/file",
     "https://esl-monday-for-outlook-portal.herokuapp.com",
     "https://esl-subscription-services.herokuapp.com",
     "https://a74851e61fef69a2.cdn2.monday.app",
-    "https://bc48-2a0e-9cc0-23f4-d00-fce6-3347-eae8-4c60.ngrok.io",
   ],
   methods: ["GET", "PUT", "POST", "HEAD", "DELETE", "OPTIONS"],
   preflightContinue: false,
