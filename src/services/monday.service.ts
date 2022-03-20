@@ -92,10 +92,12 @@ function getMissingColumnNames(
 ): string[] | undefined {
   if (dbColumns) {
     console.log(`dbColumns`, dbColumns);
+    const filteredColumns = item.columnValues.filter((column) =>
+      dbColumns.includes(column.id)
+    );
     const columns = dbColumns?.map((column) => {
-      if (column === "name") return { title: "Name" };
-      const col = item.columnValues?.find((value) => column === value.id);
-      return col?.title;
+      const col = filteredColumns?.find((value) => column === value.id);
+      return col;
     });
     return columns?.map((col: any) => col?.title);
   }
