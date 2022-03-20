@@ -66,7 +66,7 @@ async function notify(
   dbColumns: Types.Id[]
 ) {
   const names = {
-    missingColumns: getColumnNames(dbColumns, item),
+    missingColumns: getMissingColumnNames(dbColumns, item),
     item: item.name,
   };
   console.log(`names`, names);
@@ -86,22 +86,23 @@ async function notify(
   const res = await monday.api(mutation);
   console.log(`notify->res`, res);
 }
-function getColumnNames(
+function getMissingColumnNames(
   dbColumns: Types.DbColumns,
   item: Types.Item
 ): string[] | undefined {
   if (dbColumns) {
+    console.log(`dbColumns`, dbColumns);
     const columns = dbColumns?.map((column) => {
       if (column === "name") return { title: "Name" };
       const col = item.columnValues?.find((value) => column === value.id);
-      return col;
+      return col?.title;
     });
     return columns?.map((col: any) => col?.title);
   }
 }
 export default {
   getItemColumns,
-  getColumnNames,
+  getMissingColumnNames,
   checkItemColumnValues,
   notify,
   returnToPreviousGroup,
