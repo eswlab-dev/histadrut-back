@@ -2,11 +2,12 @@ import initMondayClient from "monday-sdk-js";
 import * as Types from "../constants/types";
 import mondaySdk from "monday-sdk-js";
 const monday = mondaySdk();
-const domain =
-  process.env.NODE_ENV === "development"
-    ? "https://3352-2a0e-9cc0-23f4-d00-d824-6183-c845-2759.eu.ngrok.io"
-    : "https://3352-2a0e-9cc0-23f4-d00-d824-6183-c845-2759.eu.ngrok.io";
-async function getItemColumns(token: string, itemId: Types.Id) {
+
+async function getItemColumns(
+  token: string,
+  itemId: Types.Id,
+  dbColumns: Types.DbColumns
+) {
   try {
     monday.setToken(token);
     const query = `query {
@@ -18,12 +19,16 @@ async function getItemColumns(token: string, itemId: Types.Id) {
             type
             title
             value
+            additional_info
+
           }
         }
       }`;
     const response = await monday.api(query);
     const item: Types.Item = response.data.items[0];
-    item.columnValues = response.data.items[0].column_values;
+    item.columnValues = response.data.items[0].column_values.filter((col) =>
+      dbColumns.includes(col.id)
+    );
     return item;
   } catch (err) {
     console.log(err);
@@ -39,12 +44,37 @@ async function checkItemColumnValues(
   const checkedColumns = item.columnValues.filter((column) =>
     dbColumns.includes(column.id)
   );
-  const isValid = checkedColumns?.every((col) => {
-    const { value, id } = col;
-    return dbColumns.includes(id) && !!value;
-  });
-  console.log(`isValid`, isValid);
+  const isValid = checkedColumns?.every(
+    (col) => !!checkComplexColumns(col, dbColumns)
+  );
   return isValid;
+}
+function checkComplexColumns(
+  col: Types.ColumnValue,
+  dbColumns: Types.DbColumns
+) {
+  const { value, id, type } = col;
+  const columnsToParse: string[] = [
+    "file",
+    "color",
+    "dropdown",
+    "board-relation",
+  ];
+  if (columnsToParse.includes(type)) {
+    const parsedValue = JSON.parse(value);
+    const parsedInfo = JSON.parse(col.additional_info);
+    console.log(`checkComplexColumns -> parsedValue`, parsedValue, col);
+    console.log(`checkComplexColumns -> parsedInfo`, parsedInfo, col);
+    if (type === "file")
+      return dbColumns.includes(id) && parsedValue?.files?.length;
+    if (type === "color") return dbColumns.includes(id) && !!parsedInfo.label;
+    if (type === "dropdown")
+      return dbColumns.includes(id) && parsedValue?.ids?.length;
+    if (type === "board-relation")
+      return dbColumns.includes(id) && parsedValue?.linkedPulseIds?.length;
+  } else {
+    return dbColumns.includes(id) && !!value;
+  }
 }
 async function returnToPreviousGroup(
   itemId: Types.Id,
@@ -69,13 +99,13 @@ async function notify(
     missingColumns: getMissingColumnNames(dbColumns, item),
     item: item.name,
   };
-  console.log(`names`, names);
-
   const message = `The item <b>${
     names.item
-  }</b> was returned to it's previous group because it wasn't filled correctly. Missing columns:<b> ${names.missingColumns?.join(
-    ", "
-  )}</b>`;
+  }</b> was returned to it's previous group because it wasn't filled correctly. Missing columns:<b> ${
+    names.missingColumns!.length > 1
+      ? names.missingColumns?.join(", ")
+      : names.missingColumns!
+  }</b>`;
   const mutation = `mutation{
     create_notification (user_id:${userId}, target_id:${
     item.id
@@ -91,15 +121,11 @@ function getMissingColumnNames(
   item: Types.Item
 ): string[] | undefined {
   if (dbColumns) {
-    console.log(`dbColumns`, dbColumns);
-    const filteredColumns = item.columnValues.filter((column) =>
-      dbColumns.includes(column.id)
+    const filteredColumns = item.columnValues.filter(
+      (column) => !checkComplexColumns(column, dbColumns)
     );
-    const columns = dbColumns?.map((column) => {
-      const col = filteredColumns?.find((value) => column === value.id);
-      return col;
-    });
-    return columns?.map((col: any) => col?.title);
+
+    return filteredColumns?.map((col: any) => col?.title);
   }
 }
 export default {

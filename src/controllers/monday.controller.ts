@@ -19,27 +19,26 @@ export async function executeAction(req: Request, res: Response) {
   // return res.end();
   try {
     const { shortLivedToken } = req.session;
-    console.log(`executeAction -> shortLivedToken`, shortLivedToken);
     const { payload } = req.body;
-    // console.log(`executeAction -> payload`, payload);
-    // return res.status(200).send({});
     const { inboundFieldValues } = payload;
     const { boardId, itemId, groupId, previousGroupId, userId } =
       inboundFieldValues;
-    const item: Types.Item | undefined = await mondayService.getItemColumns(
-      shortLivedToken!,
-      itemId
-    );
-    console.log(`executeAction -> item`, item);
-    if (item) {
-      const dbColumns = await dbService.getBoardRestrictions(boardId);
-      // console.log(`executeAction -> dbColumns`, dbColumns);
-      if (dbColumns) {
+    const dbColumns = await dbService.getBoardRestrictions(boardId);
+    if (dbColumns) {
+      const item: Types.Item | undefined = await mondayService.getItemColumns(
+        shortLivedToken!,
+        itemId,
+        dbColumns!
+      );
+      console.log(`executeAction -> dbColumns`, dbColumns);
+      console.log(`executeAction -> item`, item);
+      if (item) {
+        // console.log(`executeAction -> dbColumns`, dbColumns);
         const isValid = await mondayService.checkItemColumnValues(
           item,
           dbColumns
         );
-        // console.log(`executeAction -> isValid`, isValid);
+        console.log(`executeAction -> isValid`, isValid);
         if (isValid) {
           return res.status(200).send({});
         } else {

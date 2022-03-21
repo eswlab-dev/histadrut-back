@@ -33,11 +33,9 @@ export async function getBoardRestrictions(req: Request, res: Response) {
 export async function AddBoardRestriction(req: Request, res: Response) {
   try {
     const restriction: Types.BoardRestrictions = req.body;
-    console.log(`AddBoardRestriction -> req.body`, req.body);
-    console.log(`AddBoardRestriction -> restriction`, restriction);
     const newRestriction = new BoardRestriction(restriction);
-    console.log(`AddBoardRestriction -> newRestriction`, newRestriction);
     await newRestriction.save();
+    console.log(`AddBoardRestriction -> newRestriction`, newRestriction);
     res.send(newRestriction);
   } catch (error) {
     console.log(`AddBoardRestriction -> error`, error);
@@ -45,9 +43,7 @@ export async function AddBoardRestriction(req: Request, res: Response) {
 }
 export async function updateBoardRestriction(req: Request, res: Response) {
   try {
-    console.log(req.body);
     const restriction: Types.BoardRestrictions = req.body;
-    console.log(`updateBoardRestriction -> restriction`, restriction);
     const newRestriction = await BoardRestriction.findByIdAndUpdate(
       restriction._id,
       restriction,
