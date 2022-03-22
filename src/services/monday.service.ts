@@ -59,6 +59,8 @@ function checkComplexColumns(
     "color",
     "dropdown",
     "board-relation",
+    "dependency",
+    "boolean",
   ];
   if (columnsToParse.includes(type)) {
     const parsedValue = JSON.parse(value);
@@ -68,10 +70,12 @@ function checkComplexColumns(
     if (type === "file")
       return dbColumns.includes(id) && parsedValue?.files?.length;
     if (type === "color") return dbColumns.includes(id) && !!parsedInfo.label;
-    if (type === "dropdown")
+    else if (type === "dropdown")
       return dbColumns.includes(id) && parsedValue?.ids?.length;
-    if (type === "board-relation")
+    else if (type === "board-relation" || type === "dependency")
       return dbColumns.includes(id) && parsedValue?.linkedPulseIds?.length;
+    else if (type === "boolean")
+      return dbColumns.includes(id) && parsedValue.checked;
   } else {
     return dbColumns.includes(id) && !!value;
   }
@@ -99,6 +103,7 @@ async function notify(
     missingColumns: getMissingColumnNames(dbColumns, item),
     item: item.name,
   };
+  // console.log(`names`, names)
   const message = `The item <b>${
     names.item
   }</b> was returned to it's previous group because it wasn't filled correctly. Missing columns:<b> ${
@@ -124,7 +129,7 @@ function getMissingColumnNames(
     const filteredColumns = item.columnValues.filter(
       (column) => !checkComplexColumns(column, dbColumns)
     );
-
+    console.log(`getMissingColumnNames -> filteredColumns`, filteredColumns);
     return filteredColumns?.map((col: any) => col?.title);
   }
 }
