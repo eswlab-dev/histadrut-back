@@ -17,7 +17,7 @@ const corsOptions = {
     "https://api.monday.com/v2/file",
     "https://esl-monday-for-outlook-portal.herokuapp.com",
     "https://esl-subscription-services.herokuapp.com",
-    "https://a10ccec517648139.cdn2.monday.app",
+    "https://58824a259b7cca1a.cdn2.monday.app",
   ],
   methods: ["GET", "PUT", "POST", "HEAD", "DELETE", "OPTIONS"],
   preflightContinue: false,
