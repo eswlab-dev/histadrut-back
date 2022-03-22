@@ -75,7 +75,7 @@ function checkComplexColumns(
     else if (type === "board-relation" || type === "dependency")
       return dbColumns.includes(id) && parsedValue?.linkedPulseIds?.length;
     else if (type === "boolean")
-      return dbColumns.includes(id) && parsedValue.checked;
+      return dbColumns.includes(id) && parsedValue?.checked;
   } else {
     return dbColumns.includes(id) && !!value;
   }
