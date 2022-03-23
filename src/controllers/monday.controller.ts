@@ -23,7 +23,7 @@ export async function executeAction(req: Request, res: Response) {
     const { inboundFieldValues } = payload;
     const { boardId, itemId, groupId, previousGroupId, userId } =
       inboundFieldValues;
-    const dbColumns = await dbService.getBoardRestrictions(boardId);
+    const dbColumns = await dbService.getGroupRestrictions(boardId, groupId);
     if (dbColumns) {
       const item: Types.Item | undefined = await mondayService.getItemColumns(
         shortLivedToken!,

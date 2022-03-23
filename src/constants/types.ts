@@ -17,6 +17,7 @@ export interface Item {
 export interface BoardRestrictions {
   accountId: number;
   boardId: number;
+  groupId: Id;
   columnIds: number[];
   _id?: mongoose.Types.ObjectId;
 }
