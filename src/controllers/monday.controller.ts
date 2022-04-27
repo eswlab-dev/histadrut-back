@@ -14,8 +14,10 @@ declare global {
     }
   }
 }
-
+let isReqOn: boolean = false;
 export async function executeAction(req: Request, res: Response) {
+  if (isReqOn) return res.end();
+  isReqOn = true;
   // return res.end();
   try {
     const { shortLivedToken } = req.session;
