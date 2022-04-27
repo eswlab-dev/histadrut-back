@@ -25,8 +25,8 @@ async function getItemColumns(
         }
       }`;
     const response = await monday.api(query);
-    const item: Types.Item = response.data.items[0];
-    item.columnValues = response.data.items[0].column_values.filter((col) =>
+    const item: Types.Item = response.data?.items[0];
+    item.columnValues = response.data.items[0].column_values?.filter((col) =>
       dbColumns.includes(col.id)
     );
     return item;
@@ -41,8 +41,8 @@ async function checkItemColumnValues(
   item: Types.Item,
   dbColumns: Types.DbColumns
 ): Promise<boolean> {
-  const checkedColumns = item.columnValues.filter((column) =>
-    dbColumns.includes(column.id)
+  const checkedColumns = item.columnValues?.filter((column) =>
+    dbColumns.includes(column?.id)
   );
   const isValid = checkedColumns?.every(
     (col) => !!checkComplexColumns(col, dbColumns)
@@ -69,7 +69,7 @@ function checkComplexColumns(
     console.log(`checkComplexColumns -> parsedInfo`, parsedInfo, col);
     if (type === "file")
       return dbColumns.includes(id) && parsedValue?.files?.length;
-    if (type === "color") return dbColumns.includes(id) && !!parsedInfo.label;
+    if (type === "color") return dbColumns?.includes(id) && !!parsedInfo?.label;
     else if (type === "dropdown")
       return dbColumns.includes(id) && parsedValue?.ids?.length;
     else if (type === "board-relation" || type === "dependency")
@@ -109,7 +109,7 @@ async function notify(
   }</b> was returned to it's previous group because it wasn't filled correctly. Missing columns:<b> ${
     names.missingColumns!.length > 1
       ? names.missingColumns?.join(", ")
-      : names.missingColumns!
+      : names?.missingColumns!
   }</b>`;
   const mutation = `mutation{
     create_notification (user_id:${userId}, target_id:${
