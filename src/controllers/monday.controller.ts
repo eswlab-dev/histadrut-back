@@ -49,11 +49,13 @@ export async function executeAction(req: Request, res: Response) {
           return res.status(200).send({});
         }
       }
+      isReqOn = false;
       return res.status(200).send({});
     }
     return res.status(500).send({ message: "internal server error" });
     // await mondayService.changeColumnValue(shortLivedToken, boardId, itemId, targetColumnId, transformedText);
   } catch (err) {
+    isReqOn = false;
     console.error("mondayController-> executeAction", err);
     return res.status(500).send({ message: "internal server error" });
   }
